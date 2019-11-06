@@ -68,15 +68,28 @@ TokenType get_token() {
         get_next_char();
 
         if (last_char == '*') {
-            while (1) {
-                get_next_char();
-                if (last_char == EOF || last_char == '*') break;
-            }
-            while (1) {
-                get_next_char();
-                if (last_char == EOF || last_char == ')') break;
-            }
             get_next_char();
+            int found = 0;
+            while (1) {
+                if (last_char == EOF) break;
+                if (last_char != '*' && last_char != ')') {
+                    get_next_char();
+                    found = 0;
+                    continue;
+                }
+                if (last_char == '*') {
+                    get_next_char();
+                    found = 1;
+                    continue;
+                }
+                get_next_char();
+                if (found == 1) {
+                    found = 2;
+                    break;
+                }
+                found = 0;
+            }
+            if (found < 2) error("Expected end of comment *)");
             return get_token();
         }
         return LPARENT;

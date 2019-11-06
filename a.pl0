@@ -3,7 +3,7 @@ PROGRAM abcd;
 VAR x, y, z, q, r, n, f;
 
 (* jasldfjsaf
-asfldjsdfasdf
+*asfldjsdfasdf
 *)
 
 PROCEDURE multiply;

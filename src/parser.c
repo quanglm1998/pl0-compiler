@@ -6,20 +6,31 @@ TokenType token;
 
 void term() {
     factor();
-    while (token == TIMES || token == SLASH) {
+    while (token == TIMES || token == SLASH || token == PERCENT) {
         token = get_token();
         factor();
     }
 }
 
 void expression() {
-    if (token == PLUS || token == MINUS) {
-        token = get_token();
-    }
+    if (token == PLUS || token == MINUS) token = get_token();
     term();
     while (token == PLUS || token == MINUS) {
         token = get_token();
         term();
+    }
+}
+
+void condition() {
+    if (token == ODD) {
+        token = get_token();
+        expression();
+    } else {
+        expression();
+        if (token == EQU || token == NEQ || token == LSS || token == LEQ || token == GTR || token == GEQ) {
+            token = get_token();
+            expression();
+        } else error("Condition: syntax error");
     }
 }
 
@@ -29,44 +40,17 @@ void factor() {
         if (token == LBRACK) {
             token = get_token();
             expression();
-            if (token == RBRACK) {
-                token = get_token();
-            } else {
-                error("Expected ]");
-            }
-        }
-        return;
-    }
-
-    if (token == NUMBER) {
-        token = get_token();
-        return;
-    }
-
-    if (token == LPARENT) {
-        token = get_token();
-        expression();
-        if (token == RPARENT) {
+            if (token != RBRACK) error("Expected ]");
             token = get_token();
-        } else {
-            error("Expected )");
         }
-        return;
-    }
-
-    error("Factor: syntax error");
-
-}
-
-void condition() {
-    expression();
-    if (token == EQU || token == NEQ || token == LSS ||   
-        token == LEQ || token == GTR || token == GEQ) {
+    } else if (token == NUMBER) {
+        token = get_token();
+    } else if (token == LPARENT) {
         token = get_token();
         expression();
-    } else {
-        error("Condition: syntax error");
-    }
+        if (token != RPARENT) error("Expected )");
+        token = get_token();
+    } else error("Factor: syntax error");
 }
 
 void statement() {
@@ -75,219 +59,131 @@ void statement() {
         if (token == LBRACK) {
             token = get_token();
             expression();
-            if (token == RBRACK) token = get_token();
-            else error("Expected ]");
+            if (token != RBRACK) error("Expected ]");
+            token = get_token();
         }
-        if (token == ASSIGN) {
+        if (token != ASSIGN) error("Expected :=");
+        token = get_token();
+        expression();
+    } else if (token == CALL) {
+        token = get_token();
+        if (token != IDENT) error("Expected an IDENT");
+        token = get_token();
+        if (token == LPARENT) {
             token = get_token();
             expression();
-        } else error("Expected := ");
-        return;
-    }
-
-    if (token == CALL) {
-        token = get_token();
-        if (token == IDENT) {
-            token = get_token();
-            if (token == LPARENT) {
+            while (token == COMMA) {
                 token = get_token();
                 expression();
-                while (token == COMMA) {
-                    token = get_token();
-                    expression();
-                }
-                if (token == RPARENT) {
-                    token = get_token();
-                } else {
-                    error("Expected )");
-                }
             }
-        } else {
-            error("Call: expected an IDENT");
+            if (token != RPARENT) error("Expected )");
+            token = get_token();
         }
-        return;
-    }
-
-    if (token == BEGIN) {
+    } else if (token == BEGIN) {
         token = get_token();
         statement();
         while (token == SEMICOLON) {
             token = get_token();
             statement();
         }
-        if (token != END) {
-            error("Expected END");
-        }
+        if (token != END) error("Expected END");
         token = get_token();
-        return;
-    }
-
-    if (token == IF) {
+    } else if (token == IF) {
         token = get_token();
         condition();
-        if (token != THEN) {
-            error("Expected THEN");
-        }
+        if (token != THEN) error("Expected THEN");
         token = get_token();
         statement();
         if (token == ELSE) {
             token = get_token();
             statement();
         }
-        return;
-    }
-
-    if (token == WHILE) {
+    } else if (token == WHILE) {
         token = get_token();
         condition();
-        if (token == DO) {
-            token = get_token();
-            statement();
-        } else {
-            error("Expected DO");
-        }
-        return;
-    }
-
-    if (token == FOR) {
-        token = get_token();
-        if (token != IDENT) {
-            error("Expected an IDENT");
-        }
-        token = get_token();
-        if (token != ASSIGN) {
-            error("Expected ASSIGN");
-        }
-        token = get_token();
-        expression();
-        if (token != TO) {
-            error("Expected TO");
-        }
-        token = get_token();
-        expression();
-        if (token != DO) {
-            error("Expected DO");
-        }
+        if (token != DO) error("Expected DO");
         token = get_token();
         statement();
-        return;
-    }
-}
-
-void do_block_type1() {
-    if (token != IDENT) {
-        error("Expected an IDENT");
-    }
-    token = get_token();
-    if (token != EQU) {
-        error("Expected =");
-    }
-    token = get_token();
-    if (token != NUMBER) {
-        error("Expected NUMBER");
-    }
-    token = get_token();
-}
-
-void do_block_type2() {
-    if (token != IDENT) {
-        error("Expected an IDENT");
-    }
-    token = get_token();
-    if (token == LBRACK) {
+    } else if (token == FOR) {
         token = get_token();
-        if (token != NUMBER) {
-            error("Expected NUMBER");
-        }
+        if (token != IDENT) error("Expected an IDENT");
         token = get_token();
-        if (token != RBRACK) {
-            error("Expected ]");
-        }
+        if (token != ASSIGN) error("Expected :=");
         token = get_token();
-    }
-}
-
-void do_block_type3() {
-    if (token == VAR) {
+        expression();
+        if (token != TO) error("Expected TO");
         token = get_token();
+        expression();
+        if (token != DO) error("Expected DO");
+        statement();
     }
-    if (token != IDENT) {
-        error("Expected an IDENT");
-    }
-    token = get_token();
 }
 
 void block() {
     if (token == CONST) {
         token = get_token();
-        do_block_type1();
-        while (token == COMMA) {
+        while (1) {
+            if (token != IDENT) error("Expected an IDENT");
             token = get_token();
-            do_block_type1();
+            if (token != EQU) error("Expected =");
+            token = get_token();
+            if (token != NUMBER) error("Expected a NUMBER");
+            token = get_token();
+            if (token != COMMA) break;
+            token = get_token();
         }
-        if (token != SEMICOLON) {
-            error("Expected ;");
-        }
+        if (token != SEMICOLON) error("Expected ;");
         token = get_token();
     }
-
     if (token == VAR) {
         token = get_token();
-        do_block_type2();
-        while (token == COMMA) {
+        while (1) {
+            if (token != IDENT) error("Expected an IDENT");
             token = get_token();
-            do_block_type2();
+            if (token == LBRACK) {
+                token = get_token();
+                if (token != NUMBER) error("Expected a NUMBER");
+                token = get_token();
+                if (token != RBRACK) error("Expected ]");
+                token = get_token();
+            }
+            if (token != COMMA) break;
+            token = get_token();
         }
-        if (token != SEMICOLON) {
-            error("Expected ;");
-        }
+        if (token != SEMICOLON) error("Expected ;");
         token = get_token();
     }
-
-    while(token == PROCEDURE) {
+    while (token == PROCEDURE) {
         token = get_token();
-        if (token != IDENT) {
-            error("Expected an IDENT");
-        }
+        if (token != IDENT) error("Expected an IDENT");
         token = get_token();
         if (token == LPARENT) {
             token = get_token();
-            do_block_type3();
-            while (token == SEMICOLON) {
+            while (1) {
+                if (token == VAR) token = get_token();
+                if (token != IDENT) error("Expected an IDENT");
                 token = get_token();
-                do_block_type3();
+                if (token != SEMICOLON) break;
+                token = get_token();
             }
-            if (token != RPARENT) {
-                error("Expected )");
-            }
+            if (token != RPARENT) error("Expected )");
             token = get_token();
         }
-
-        if (token != SEMICOLON) {
-            error("Expected ;");
-        }
+        if (token != SEMICOLON) error("Expected ;");
         token = get_token();
         block();
-        if (token != SEMICOLON) {
-            error("Expected ;");
-        }
+        if (token != SEMICOLON) error("Expected ;");
         token = get_token();
     }
-
-    if (token == BEGIN) {
+    if (token != BEGIN) error("Expected BEGIN");
+    token = get_token();
+    statement();
+    while (token == SEMICOLON) {
         token = get_token();
         statement();
-        while (token == SEMICOLON) {
-            token = get_token();
-            statement();
-        }
-        if (token != END) {
-            error("Expected END");
-        }
-        token = get_token();
-        return;
     }
-    error("Block: syntax error");
+    if (token != END) error("Expected END");
+    token = get_token();
 }
 
 void program() {
@@ -301,11 +197,8 @@ void program() {
                 if(token == PERIOD) {
                     printf("\n================\n");
                     printf("\nProgram parsed succesfully!\n");
-                } else error("expected .");
-
+                } else error("Expected .");
             } else error("Expected ;");
-
         } else error("Expected an IDENT");
-
     } else error("Expected PROGRAM");
 }
