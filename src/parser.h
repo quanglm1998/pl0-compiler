@@ -4,4 +4,4 @@ void expression(void); // phân tích biểu thức
 void condition(void); // phân tích điều kiện
 void statement(void); // phân tích câu lệnh
 void block(void); // phân tích các khối câu lệnh
-void program(); //Phân tích chương trình
+void program(void); //Phân tích chương trình

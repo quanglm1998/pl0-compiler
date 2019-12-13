@@ -115,6 +115,7 @@ void statement() {
         token = get_token();
         expression();
         if (token != DO) error("Expected DO");
+        token = get_token();
         statement();
     }
 }
