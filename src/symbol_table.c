@@ -50,8 +50,9 @@ int enter_prod(char *id) {
     return main_table.top - 1;
 }
 
-void add_num_var(int pos, int num_var) {
+void add_num_var(int pos, int num_var, int flag) {
     main_table.symbol_stack[pos].number_of_args = num_var;
+    main_table.symbol_stack[pos].flag = flag;
 }
 
 void enter_scope() {

@@ -12,6 +12,7 @@ typedef struct {
     int level;
     char name[MAX_IDENT_LEN + 1];
     int number_of_args; // for proceduce
+    int flag; // for procedue, 0 for value, 1 for reference
 } symbol_t;
 
 #endif

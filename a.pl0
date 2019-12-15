@@ -46,7 +46,7 @@ PROCEDURE gcd(var a; b);
   PROCEDURE foo(var a; b);
     BEGIN
       a := c + b;
-      call gcd(1, 2);
+      call gcd(a, 2);
     END;
 
   BEGIN
@@ -60,25 +60,25 @@ PROCEDURE gcd(var a; b);
     z := f;;;
   END;
 
-PROCEDURE add(var u; v; var x; y);
+PROCEDURE add(u; var v; x; var y);
 var f;
 BEGIN
   IF n < 1 THEN
   BEGIN
     f := n * f;
     a := n - 1;
-    CALL add(1, 2, 3, 4);
+    CALL add(1, a, 3, x);
   END
 END;
 
 
 BEGIN
-  x := -a + a + a * a % a / d[a + a];
-  d[0] := a % a;
-  call gcd(1 + 1, y);
+  x := -a + a + a * a % a / d[a + a] - (a * 10);
+  d[a + c] := a % a;
+  call gcd(x, y);
   BEGIN
     a := 1;
-    call gcd(1 + 1, y);
+    call gcd(x, y);
   END;
   
   (* a := 10 *)
@@ -98,5 +98,9 @@ BEGIN
   a := -x * 3 + 10 / (100 * (-c));
   WHILE ODD a DO a := a + 1;
   FOR a := 1 TO 10 DO a := a + 1;
+  if -a + a + a * a % a / d[a + a] - (a * 10) <> -a + a + a * a % a / d[a + a] - (a * 10)
+  then BEGIN
+    x := -a + a + a * a % a / d[a + a] - (a * 10);
+  END;
 END
 .

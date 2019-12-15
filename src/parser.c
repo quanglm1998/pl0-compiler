@@ -6,21 +6,32 @@
 
 token_type_t token;
 
-void term() {
-    factor();
+// returns 0 if it is a var or an array var
+int term() {
+    int flag = 0;
+    flag |= factor();
     while (token == TIMES || token == SLASH || token == PERCENT) {
+        flag = 1;
         token = get_token();
         factor();
     }
+    return flag;
 }
 
-void expression() {
-    if (token == PLUS || token == MINUS) token = get_token();
-    term();
+// returns 0 if it is a var or an array var
+int expression() {
+    int flag = 0;
+    if (token == PLUS || token == MINUS) {
+        token = get_token();
+        flag = 1;
+    }
+    flag |= term();
     while (token == PLUS || token == MINUS) {
+        flag = 1;
         token = get_token();
         term();
     }
+    return flag;
 }
 
 void condition() {
@@ -36,7 +47,8 @@ void condition() {
     }
 }
 
-void factor() {
+// returns 0 if it is a var or an array var
+int factor() {
     if (token == IDENT) {
         char old_id[MAX_IDENT_LEN + 1];
         memcpy(old_id, id, MAX_IDENT_LEN + 1);
@@ -47,7 +59,13 @@ void factor() {
             if (token != RBRACK) error("Expected ]");
             check_array(old_id);
             token = get_token();
-        } else check_var_or_const(id);
+            return 0;
+        } else {
+            check_var_or_const(old_id);
+            int pos = get_location(old_id);
+            if (main_table.symbol_stack[pos].kind == KIND_CONST) return 1;
+            return 0;
+        }
     } else if (token == NUMBER) {
         token = get_token();
     } else if (token == LPARENT) {
@@ -56,6 +74,7 @@ void factor() {
         if (token != RPARENT) error("Expected )");
         token = get_token();
     } else error("Factor: syntax error");
+    return 1;
 }
 
 void statement() {
@@ -69,7 +88,7 @@ void statement() {
             if (token != RBRACK) error("Expected ]");
             check_array(old_id);
             token = get_token();
-        } else check_var(id);
+        } else check_var(old_id);
         if (token != ASSIGN) error("Expected :=");
         token = get_token();
         expression();
@@ -82,18 +101,23 @@ void statement() {
         token = get_token();
         if (token == LPARENT) {
             token = get_token();
-            expression();
+            int f = expression();
+            if (main_table.symbol_stack[pos].number_of_args < num_var + 1) error_detail(id, " has too many arguments!");
+            int flag = ((main_table.symbol_stack[pos].flag >> num_var) & 1);
+            if (flag && f) error("Reference argument must be a variable");
             num_var++;
             while (token == COMMA) {
                 token = get_token();
-                expression();
+                int f = expression();
+                if (main_table.symbol_stack[pos].number_of_args < num_var + 1) error_detail(id, " has too many arguments!");
+                int flag = ((main_table.symbol_stack[pos].flag >> num_var) & 1);
+                if (flag && f) error("Reference argument must be a variable");
                 num_var++;
             }
             if (token != RPARENT) error("Expected )");
             token = get_token();
         }
         if (main_table.symbol_stack[pos].number_of_args > num_var) error_detail(id, " has too few arguments!");
-        if (main_table.symbol_stack[pos].number_of_args < num_var) error_detail(id, " has too many arguments!");
     } else if (token == BEGIN) {
         token = get_token();
         statement();
@@ -177,12 +201,16 @@ void block() {
         if (token != IDENT) error("Expected an IDENT");
         int pos = enter_prod(id);
         int num_var = 0;
+        int flag = 0;
         enter_scope();
         token = get_token();
         if (token == LPARENT) {
             token = get_token();
             while (1) {
-                if (token == VAR) token = get_token();
+                if (token == VAR) {
+                    flag |= (1 << num_var);
+                    token = get_token();
+                }
                 if (token != IDENT) error("Expected an IDENT");
                 enter_var(id);
                 num_var++;
@@ -194,7 +222,7 @@ void block() {
             token = get_token();
         }
         if (token != SEMICOLON) error("Expected ;");
-        add_num_var(pos, num_var);
+        add_num_var(pos, num_var, flag);
         token = get_token();
         block();
         if (token != SEMICOLON) error("Expected ;");

@@ -21,7 +21,7 @@ int enter_array(char *id);
 int enter_prod(char *id);
 void enter_scope();
 void exit_scope();
-void add_num_var(int pos, int num_var);
+void add_num_var(int pos, int num_var, int flag);
 void check_array(char *id);
 void check_var(char *id);
 void check_var_or_const(char *id);
