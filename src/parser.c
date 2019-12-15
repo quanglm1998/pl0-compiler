@@ -1,3 +1,4 @@
+#include <string.h>
 #include "scanner.h"
 #include "errors.h"
 #include "parser.h"
@@ -37,12 +38,14 @@ void condition() {
 
 void factor() {
     if (token == IDENT) {
+        char old_id[MAX_IDENT_LEN + 1];
+        memcpy(old_id, id, MAX_IDENT_LEN + 1);
         token = get_token();
         if (token == LBRACK) {
             token = get_token();
             expression();
             if (token != RBRACK) error("Expected ]");
-            check_array(id);
+            check_array(old_id);
             token = get_token();
         } else check_var_or_const(id);
     } else if (token == NUMBER) {
@@ -57,12 +60,14 @@ void factor() {
 
 void statement() {
     if (token == IDENT) {
+        char old_id[MAX_IDENT_LEN + 1];
+        memcpy(old_id, id, MAX_IDENT_LEN + 1);
         token = get_token();
         if (token == LBRACK) {
             token = get_token();
             expression();
             if (token != RBRACK) error("Expected ]");
-            check_array(id);
+            check_array(old_id);
             token = get_token();
         } else check_var(id);
         if (token != ASSIGN) error("Expected :=");

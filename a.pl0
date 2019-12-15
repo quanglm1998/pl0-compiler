@@ -60,25 +60,27 @@ PROCEDURE gcd(var a; b);
     z := f;;;
   END;
 
-PROCEDURE asodk(var u; v; var x; y);
+PROCEDURE add(var u; v; var x; y);
 var f;
 BEGIN
   IF n < 1 THEN
   BEGIN
     f := n * f;
-    n := n - 1;
-    CALL asodk(1, 2, 3, 4);
+    a := n - 1;
+    CALL add(1, 2, 3, 4);
   END
 END;
 
 
 BEGIN
-  x := 1;
-  d[0] := 1;
+  x := -a + a + a * a % a / d[a + a];
+  d[0] := a % a;
   call gcd(1 + 1, y);
   BEGIN
     a := 1;
+    call gcd(1 + 1, y);
   END;
+  
   (* a := 10 *)
   IF n < 1 THEN
   BEGIN
@@ -86,6 +88,13 @@ BEGIN
     n := n - 1;
   END
   ELSE a := a + 1;
+
+  IF n < 1 THEN
+  BEGIN
+    a := n * a;
+    n := n - 1;
+  END;
+
   a := -x * 3 + 10 / (100 * (-c));
   WHILE ODD a DO a := a + 1;
   FOR a := 1 TO 10 DO a := a + 1;
