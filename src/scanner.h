@@ -1,3 +1,6 @@
+#ifndef SCANNER_H
+#define SCANNER_H
+
 #include <stdio.h>
 
 #define MAX_IDENT_LEN 10
@@ -9,13 +12,15 @@ typedef enum {//Các loại Token được sử dụng trong PL/0
     BEGIN, CALL, CONST, DO,  ELSE, END, FOR, IF, ODD,
     PROCEDURE, PROGRAM, THEN, TO, VAR, WHILE,
     PLUS, MINUS, TIMES, SLASH, EQU, NEQ, LSS, LEQ, GTR, GEQ, LPARENT, RPARENT, LBRACK, RBRACK, PERIOD, COMMA, SEMICOLON,  ASSIGN, PERCENT
-} TokenType;
+} token_type_t;
 
-TokenType token;    //Token nhận dạng được
+token_type_t token;    //Token nhận dạng được
 int       num;      //Từ vựng khi Token là NUMBER
 char id[MAX_IDENT_LEN + 1]; //Từ vựng khi Token là IDENT
 int id_len;
 FILE* src_file;
 char last_char;
 
-TokenType get_token();
+token_type_t get_token();
+
+#endif

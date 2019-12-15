@@ -1,68 +1,93 @@
 PROGRAM abcd;
 
-VAR x, y, z, q, r, n, f;
+const  c = 13;
+VAR x, y, z, q, r, n, d[10], a, a10;
 
 (* jasldfjsaf
 *asfldjsdfasdf
 *)
 
 PROCEDURE multiply;
-VAR a, b;
-BEGIN
-  a := (x + y);
-  b := Y;
-  z := 0;
-  WHILE b > 0 DO
+  VAR a, b;
   BEGIN
-    IF b = 1 THEN z := z + a;
-    a := 2 * a;
-    b := b / 2
-  END
-END;
+    a := (x + y);
+    b := Y;
+    z := 0;
+    WHILE b > 0 DO
+    BEGIN
+      IF b = 1 THEN z := z + a;
+      a := 2 * a;
+      b := b / 2
+    END
+  END;
 
 PROCEDURE divide;
-VAR w;
-BEGIN
-  r := x;
-  q := 0;
-  w := y;
-  WHILE w <= r DO w := 2 * w;
-  WHILE w > y DO
+  VAR w;
   BEGIN
-    q := 2 * q;
-    w := w / 2;
-    IF w <= r THEN
+    r := x;
+    q := 0;
+    w := y;
+    WHILE w <= r DO w := 2 * w;
+    WHILE w > y DO
     BEGIN
-      r := r - w;
-      q := q + 1
+      q := 2 * q;
+      w := w / 2;
+      IF w <= r THEN
+      BEGIN
+        r := r - w;
+        q := q + 1
+      END
     END
-  END
-END;
-
-PROCEDURE gcd;
-VAR f, g;
-BEGIN
-  f := x;
-  g := y;
-  WHILE f <> g DO
-  BEGIN
-    IF f < g THEN g := g - f;
-    IF g < f THEN f := f - g
   END;
-  z := f;
-END;
 
-PROCEDURE asodk;
+PROCEDURE gcd(var a; b);
+  VAR f, g;
+
+  PROCEDURE foo(var a; b);
+    BEGIN
+      a := c + b;
+      call gcd(1, 2);
+    END;
+
+  BEGIN
+    f := x;
+    g := y;
+    WHILE f <> g DO
+    BEGIN
+      IF f < g THEN g := g - f;
+      IF g < f THEN f := f - g
+    END;
+    z := f;;;
+  END;
+
+PROCEDURE asodk(var u; v; var x; y);
+var f;
 BEGIN
   IF n < 1 THEN
   BEGIN
     f := n * f;
     n := n - 1;
-    CALL fact
+    CALL asodk(1, 2, 3, 4);
   END
 END;
 
 
 BEGIN
-
-END.
+  x := 1;
+  d[0] := 1;
+  call gcd(1 + 1, y);
+  BEGIN
+    a := 1;
+  END;
+  (* a := 10 *)
+  IF n < 1 THEN
+  BEGIN
+    a := n * a;
+    n := n - 1;
+  END
+  ELSE a := a + 1;
+  a := -x * 3 + 10 / (100 * (-c));
+  WHILE ODD a DO a := a + 1;
+  FOR a := 1 TO 10 DO a := a + 1;
+END
+.

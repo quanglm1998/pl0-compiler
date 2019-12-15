@@ -5,7 +5,7 @@
 #include "scanner.h"
 #include "errors.h"
 
-const TokenType KEYWORDS[NUM_KEYWORDS] = {BEGIN, END, IF, THEN, WHILE, DO, CALL, ODD, TO, CONST, VAR, PROCEDURE, PROGRAM, ELSE, FOR};
+const token_type_t KEYWORDS[NUM_KEYWORDS] = {BEGIN, END, IF, THEN, WHILE, DO, CALL, ODD, TO, CONST, VAR, PROCEDURE, PROGRAM, ELSE, FOR};
 
 char TOKEN_TO_TEXT[][20] = {
     "NONE", "IDENT", "NUMBER",
@@ -36,11 +36,13 @@ int get_keyword_id(char *keyword) {
     return -1; // -1 means ident
 }
 
-TokenType get_token() {
+token_type_t get_token() {
     while (last_char != EOF && is_non_sense(last_char)) get_next_char();
     if (last_char == EOF) return NONE;
 
     if (isalpha(last_char)) {
+        char old_id[MAX_IDENT_LEN + 1];
+        memcpy(old_id, id, MAX_IDENT_LEN + 1);
         id_len = 0;
         while (last_char != EOF && (isalpha(last_char) || isdigit(last_char))) {
             if (id_len < MAX_IDENT_LEN) id[id_len] = last_char;
@@ -49,7 +51,10 @@ TokenType get_token() {
         }
         id[id_len] = 0;
         int key_word_id = get_keyword_id(id);
-        if (key_word_id >= 0) return KEYWORDS[key_word_id];
+        if (key_word_id >= 0) {
+            memcpy(id, old_id, MAX_IDENT_LEN + 1);
+            return KEYWORDS[key_word_id];
+        }
         return IDENT;
     }
     if (isdigit(last_char)) {

@@ -5,6 +5,7 @@
 #include "scanner.h"
 #include "parser.h"
 #include "errors.h"
+#include "symbol_table.h"
 
 int main(int argc, char *argv[]) {
     if (argc == 1) {
@@ -18,7 +19,8 @@ int main(int argc, char *argv[]) {
     last_char = ' ';
     token = get_token();
     program();
-
+    main_table.cur_level = 0;
+    main_table.top = 0;
     fclose(src_file);
     return 0;
 }
