@@ -57,7 +57,7 @@ PROCEDURE gcd(var a; b);
       IF f < g THEN g := g - f;
       IF g < f THEN f := f - g
     END;
-    z := f;;;
+    z := d[0];
   END;
 
 PROCEDURE add(u; var v; x; var y);
@@ -65,7 +65,7 @@ var f;
 BEGIN
   IF n < 1 THEN
   BEGIN
-    f := n * f;
+    a := n * f;
     a := n - 1;
     CALL add(1, a, 3, x);
   END

@@ -57,7 +57,7 @@ int factor() {
             token = get_token();
             expression();
             if (token != RBRACK) error("Expected ]");
-            check_array(old_id);
+            check(old_id, KIND_ARRAY);
             token = get_token();
             return 0;
         } else {
@@ -86,16 +86,16 @@ void statement() {
             token = get_token();
             expression();
             if (token != RBRACK) error("Expected ]");
-            check_array(old_id);
+            check(old_id, KIND_ARRAY);
             token = get_token();
-        } else check_var(old_id);
+        } else check(old_id, KIND_VAR);
         if (token != ASSIGN) error("Expected :=");
         token = get_token();
         expression();
     } else if (token == CALL) {
         token = get_token();
         if (token != IDENT) error("Expected an IDENT");
-        check_prod(id);
+        check(id, KIND_PROCEDURE);
         int pos = get_location(id);
         int num_var = 0;
         token = get_token();
@@ -146,7 +146,7 @@ void statement() {
     } else if (token == FOR) {
         token = get_token();
         if (token != IDENT) error("Expected an IDENT");
-        check_var(id);
+        check(id, KIND_VAR);
         token = get_token();
         if (token != ASSIGN) error("Expected :=");
         token = get_token();
@@ -169,7 +169,7 @@ void block() {
             if (token != EQU) error("Expected =");
             token = get_token();
             if (token != NUMBER) error("Expected a NUMBER");
-            enter_const(id);
+            enter_symbol(id, KIND_CONST);
             token = get_token();
             if (token != COMMA) break;
             token = get_token();
@@ -187,9 +187,9 @@ void block() {
                 if (token != NUMBER) error("Expected a NUMBER");
                 token = get_token();
                 if (token != RBRACK) error("Expected ]");
-                enter_array(id);
+                enter_symbol(id, KIND_ARRAY);
                 token = get_token();
-            } else enter_var(id);
+            } else enter_symbol(id, KIND_VAR);
             if (token != COMMA) break;
             token = get_token();
         }
@@ -199,7 +199,7 @@ void block() {
     while (token == PROCEDURE) {
         token = get_token();
         if (token != IDENT) error("Expected an IDENT");
-        int pos = enter_prod(id);
+        int pos = enter_symbol(id, KIND_PROCEDURE);
         int num_var = 0;
         int flag = 0;
         enter_scope();
@@ -212,7 +212,7 @@ void block() {
                     token = get_token();
                 }
                 if (token != IDENT) error("Expected an IDENT");
-                enter_var(id);
+                enter_symbol(id, KIND_VAR);
                 num_var++;
                 token = get_token();
                 if (token != SEMICOLON) break;

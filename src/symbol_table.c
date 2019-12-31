@@ -1,7 +1,12 @@
+#include <stdlib.h>
 #include <string.h>
 #include "symbol.h"
 #include "symbol_table.h"
 #include "errors.h"
+
+const char KIND_TO_TEXT[][20] = {
+    "variable", "constant", "array value", "proceduce"
+};
 
 // return -1 if ident has not declared yet
 int get_location(char *id) {
@@ -22,30 +27,9 @@ void init_symbol(char *id) {
     main_table.symbol_stack[main_table.top].level = main_table.cur_level;
 }
 
-int enter_var(char *id) {
+int enter_symbol(char *id, kind_t kind) {
     init_symbol(id);
-    main_table.symbol_stack[main_table.top].kind = KIND_VAR;
-    main_table.top++;
-    return main_table.top - 1;
-}
-
-int enter_const(char *id) {
-    init_symbol(id);
-    main_table.symbol_stack[main_table.top].kind = KIND_CONST;
-    main_table.top++;
-    return main_table.top - 1;
-}
-
-int enter_array(char *id) {
-    init_symbol(id);
-    main_table.symbol_stack[main_table.top].kind = KIND_ARRAY;
-    main_table.top++;
-    return main_table.top - 1;
-}
-
-int enter_prod(char *id) {
-    init_symbol(id);
-    main_table.symbol_stack[main_table.top].kind = KIND_PROCEDURE;
+    main_table.symbol_stack[main_table.top].kind = kind;
     main_table.top++;
     return main_table.top - 1;
 }
@@ -66,22 +50,14 @@ void exit_scope() {
     main_table.cur_level--;
 }
 
-void check_var(char *id) {
+void check(char *id, kind_t kind) {
     int pos = get_location(id);
     if (pos == -1) error_detail(id, " has not been declared!");
-    if (main_table.symbol_stack[pos].kind != KIND_VAR) error_detail(id, " is not a variable!");
-}
-
-void check_array(char *id) {
-    int pos = get_location(id);
-    if (pos == -1) error_detail(id, " has not been declared!");
-    if (main_table.symbol_stack[pos].kind != KIND_ARRAY) error_detail(id, " is not an array!");
-}
-
-void check_prod(char *id) {
-    int pos = get_location(id);
-    if (pos == -1) error_detail(id, " has not been declared!");
-    if (main_table.symbol_stack[pos].kind != KIND_PROCEDURE) error_detail(id, " is not a proceduce!");
+    if (main_table.symbol_stack[pos].kind != kind) {
+        printf("\n\n===================\n");
+        printf("\n%s is not a/an %s\n", id, KIND_TO_TEXT[kind]);
+        exit(0);
+    }
 }
 
 void check_var_or_const(char *id) {

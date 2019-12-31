@@ -15,16 +15,11 @@ symbol_table_t main_table;
 
 void init_symbol(char *id);
 int get_location(char *id);
-int enter_var(char *id);
-int enter_const(char *id);
-int enter_array(char *id);
-int enter_prod(char *id);
+int enter_symbol(char *id, kind_t kind);
 void enter_scope();
 void exit_scope();
 void add_num_var(int pos, int num_var, int flag);
-void check_array(char *id);
-void check_var(char *id);
 void check_var_or_const(char *id);
-void check_prod(char *id);
+void check(char *id, kind_t kind);
 
 #endif
