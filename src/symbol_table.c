@@ -34,6 +34,7 @@ int enter_symbol(char *id, kind_t kind) {
     return main_table.top - 1;
 }
 
+// add number of var to proceduce
 void add_num_var(int pos, int num_var, int flag) {
     main_table.symbol_stack[pos].number_of_args = num_var;
     main_table.symbol_stack[pos].flag = flag;

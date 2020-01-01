@@ -3,6 +3,7 @@
 #include "errors.h"
 #include "parser.h"
 #include "symbol_table.h"
+#include "instruction.h"
 
 token_type_t token;
 
