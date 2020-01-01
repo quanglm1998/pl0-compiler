@@ -2,6 +2,7 @@
 #define INSTRUCTION_H
 
 #define MAX_CODE 1000000
+#define NUM_OP 50
 
 typedef enum {
     OP_LA,
@@ -33,9 +34,10 @@ typedef enum {
     OP_GT,
     OP_LT,
     OP_GE,
-    OP_LE,
-    OP_BP
+    OP_LE
 } op_code_t;
+
+const char* ASM[NUM_OP];
 
 typedef struct{
     op_code_t op;
@@ -44,6 +46,10 @@ typedef struct{
 } instruction_t;
 
 instruction_t code[MAX_CODE];
-int num_code = 0;
+int num_code;
+
+int add_instruction(op_code_t op, int p, int q);
+void add_const_description(int pos_in_table, int num, int num_arg);
+void add_var_description(int pos_in_table, int num_arg);
 
 #endif

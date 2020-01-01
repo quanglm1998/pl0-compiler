@@ -1,1 +1,1 @@
-gcc src/main.c src/errors.c src/parser.c src/scanner.c src/symbol_table.c -o pl0
+gcc src/main.c src/errors.c src/parser.c src/scanner.c src/symbol_table.c src/instruction.c -o pl0

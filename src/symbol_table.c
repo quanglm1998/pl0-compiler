@@ -30,8 +30,7 @@ void init_symbol(char *id) {
 int enter_symbol(char *id, kind_t kind) {
     init_symbol(id);
     main_table.symbol_stack[main_table.top].kind = kind;
-    main_table.top++;
-    return main_table.top - 1;
+    return main_table.top++;
 }
 
 // add number of var to proceduce

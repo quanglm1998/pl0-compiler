@@ -161,7 +161,7 @@ void statement() {
     }
 }
 
-void block() {
+void block(int num_arg) {
     if (token == CONST) {
         token = get_token();
         while (1) {
@@ -170,7 +170,9 @@ void block() {
             if (token != EQU) error("Expected =");
             token = get_token();
             if (token != NUMBER) error("Expected a NUMBER");
-            enter_symbol(id, KIND_CONST);
+            int pos_in_table = enter_symbol(id, KIND_CONST);
+            add_const_description(pos_in_table, num, num_arg);
+            num_arg++;
             token = get_token();
             if (token != COMMA) break;
             token = get_token();
@@ -178,6 +180,7 @@ void block() {
         if (token != SEMICOLON) error("Expected ;");
         token = get_token();
     }
+    int jump_id = add_instruction(OP_J, 0, 0);
     if (token == VAR) {
         token = get_token();
         while (1) {
@@ -188,9 +191,15 @@ void block() {
                 if (token != NUMBER) error("Expected a NUMBER");
                 token = get_token();
                 if (token != RBRACK) error("Expected ]");
-                enter_symbol(id, KIND_ARRAY);
+                int pos_in_table = enter_symbol(id, KIND_ARRAY);
+                add_var_description(pos_in_table, num_arg);
+                num_arg += num;
                 token = get_token();
-            } else enter_symbol(id, KIND_VAR);
+            } else {
+                int pos_in_table = enter_symbol(id, KIND_VAR);
+                add_var_description(pos_in_table, num_arg);
+                num_arg++;
+            }
             if (token != COMMA) break;
             token = get_token();
         }
@@ -201,6 +210,7 @@ void block() {
         token = get_token();
         if (token != IDENT) error("Expected an IDENT");
         int pos = enter_symbol(id, KIND_PROCEDURE);
+        main_table.symbol_stack[pos].pos_in_instruction = num_code;
         int num_var = 0;
         int flag = 0;
         enter_scope();
@@ -208,12 +218,16 @@ void block() {
         if (token == LPARENT) {
             token = get_token();
             while (1) {
+                int is_ref = 0;
                 if (token == VAR) {
                     flag |= (1 << num_var);
                     token = get_token();
+                    is_ref = 1;
                 }
                 if (token != IDENT) error("Expected an IDENT");
-                enter_symbol(id, KIND_VAR);
+                int pos_in_table = enter_symbol(id, KIND_VAR);
+                add_var_description(pos_in_table, num_var);
+                main_table.symbol_stack[pos_in_table].is_ref = is_ref;
                 num_var++;
                 token = get_token();
                 if (token != SEMICOLON) break;
@@ -225,11 +239,13 @@ void block() {
         if (token != SEMICOLON) error("Expected ;");
         add_num_var(pos, num_var, flag);
         token = get_token();
-        block();
+        block(num_var);
         if (token != SEMICOLON) error("Expected ;");
         exit_scope();
         token = get_token();
+        add_instruction(OP_EP, 0, 0);
     }
+    code[jump_id].q = num_code;
     if (token != BEGIN) error("Expected BEGIN");
     token = get_token();
     statement();
@@ -248,10 +264,11 @@ void program() {
             token = get_token();
             if (token == SEMICOLON) {
                 token = get_token();
-                block();
+                block(0);
                 if(token == PERIOD) {
                     printf("\n================\n");
                     printf("\nProgram parsed succesfully!\n");
+                    add_instruction(OP_HL, 0, 0);
                 } else error("Expected .");
             } else error("Expected ;");
         } else error("Expected an IDENT");
