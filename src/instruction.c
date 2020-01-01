@@ -20,12 +20,11 @@ int add_instruction(op_code_t op, int p, int q) {
 
 void add_const_description(int pos_in_table, int num, int num_arg) {
     main_table.symbol_stack[pos_in_table].offset = num_arg + 4;
-    add_instruction(OP_LA, 0, 4 + num_arg);
     add_instruction(OP_LC, 0, num);
-    add_instruction(OP_ST, 0, 0);
 }
 
-void add_var_description(int pos_in_table, int num_arg) {
+void add_var_description(int pos_in_table, int num_arg, int num) {
     main_table.symbol_stack[pos_in_table].offset = num_arg + 4;
     main_table.symbol_stack[pos_in_table].is_ref = 0;
+    add_instruction(OP_INT, 0, num);
 }

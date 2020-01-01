@@ -13,7 +13,7 @@ typedef enum {
     OP_DCT, 
     OP_J,
     OP_FJ,
-    OP_HL,
+    OP_HLT,
     OP_ST,
     OP_CALL,
     OP_EP,
@@ -50,6 +50,6 @@ int num_code;
 
 int add_instruction(op_code_t op, int p, int q);
 void add_const_description(int pos_in_table, int num, int num_arg);
-void add_var_description(int pos_in_table, int num_arg);
+void add_var_description(int pos_in_table, int num_arg, int num);
 
 #endif
