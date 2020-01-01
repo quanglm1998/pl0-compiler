@@ -8,6 +8,14 @@
 #include "symbol_table.h"
 #include "instruction.h"
 
+int NUM_ARGS[] = {
+    2, 2, 1, 0, 1, 1,
+    1, 1, 0, 0, 2, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0
+};
+
 int main(int argc, char *argv[]) {
     if (argc == 1) {
         printf("Please add source file\n");
@@ -24,20 +32,13 @@ int main(int argc, char *argv[]) {
     program();
     fclose(src_file);
     for (int i = 0; i < num_code; i++) {
-        printf("%d %s %d %d\n", i, ASM[code[i].op], code[i].p, code[i].q);
+        printf("%s", ASM[code[i].op]);
+        if (NUM_ARGS[code[i].op] == 1) {
+            printf(" %d", code[i].q);
+        } else if (NUM_ARGS[code[i].op] == 2) {
+            printf(" %d %d", code[i].p, code[i].q);
+        }
+        printf("\n");
     }
-
-    // for (int i = 0; i < main_table.top; i++) {
-    //     printf("Var #%d:\n", i);
-    //     printf("\tkind = %d\n", main_table.symbol_stack[i].kind);
-    //     printf("\tlevel = %d\n", main_table.symbol_stack[i].level);
-    //     printf("\tname = %s\n", main_table.symbol_stack[i].name);
-    //     printf("\tnum_arg = %d\n", main_table.symbol_stack[i].number_of_args);
-    //     printf("\tflag = %d\n", main_table.symbol_stack[i].flag);
-    //     printf("\toffset = %d\n", main_table.symbol_stack[i].offset);
-    //     printf("\tis_ref = %d\n", main_table.symbol_stack[i].is_ref);
-    //     printf("\tpos_in_instruction = %d\n", main_table.symbol_stack[i].pos_in_instruction);
-    //     printf("\tvalue = %d\n", main_table.symbol_stack[i].value);
-    // }
     return 0;
 }
