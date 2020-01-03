@@ -5,7 +5,7 @@
 #include "errors.h"
 
 const char KIND_TO_TEXT[][20] = {
-    "variable", "constant", "array value", "proceduce"
+    "variable", "constant", "array value", "procedure"
 };
 
 // return -1 if ident has not declared yet
@@ -33,7 +33,7 @@ int enter_symbol(char *id, kind_t kind) {
     return main_table.top++;
 }
 
-// add number of var to proceduce
+// add number of var to procedure
 void add_num_var(int pos, int num_var, int flag) {
     main_table.symbol_stack[pos].number_of_args = num_var;
     main_table.symbol_stack[pos].flag = flag;
@@ -63,7 +63,7 @@ void check(char *id, kind_t kind) {
 void check_var_or_const(char *id) {
     int pos = get_location(id);
     if (pos == -1) error_detail(id, " has not been declared!");
-    if (main_table.symbol_stack[pos].kind == KIND_PROCEDURE) error_detail(id, " is a proceduce!");
+    if (main_table.symbol_stack[pos].kind == KIND_PROCEDURE) error_detail(id, " is a procedure!");
     if (main_table.symbol_stack[pos].kind == KIND_ARRAY) error_detail(id, " is an array!");
 }
 

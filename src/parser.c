@@ -101,28 +101,31 @@ int factor() {
     return 1;
 }
 
+void get_ident_address(void) {
+    char old_id[MAX_IDENT_LEN + 1];
+    memcpy(old_id, id, MAX_IDENT_LEN + 1);
+    token = get_token();
+    int ins_id = add_instruction(OP_LA, 0, 0);
+    int p = 0, q = 0;
+    if (token == LBRACK) {
+        token = get_token();
+        expression();
+        if (token != RBRACK) error("Expected ]");
+        check(old_id, KIND_ARRAY);
+        add_instruction(OP_ADD, 0, 0);
+        token = get_token();
+    } else check(old_id, KIND_VAR);
+    int pos_in_table = get_location(old_id);
+    code[ins_id].p = main_table.cur_level - main_table.symbol_stack[pos_in_table].level;
+    code[ins_id].q = main_table.symbol_stack[pos_in_table].offset;
+    if (main_table.symbol_stack[pos_in_table].is_ref) {
+        code[ins_id].op = OP_LV;
+    }
+}
+
 void statement() {
     if (token == IDENT) {
-        char old_id[MAX_IDENT_LEN + 1];
-        memcpy(old_id, id, MAX_IDENT_LEN + 1);
-        token = get_token();
-        int ins_id = add_instruction(OP_LA, 0, 0);
-        int p = 0, q = 0;
-        if (token == LBRACK) {
-            token = get_token();
-            expression();
-            if (token != RBRACK) error("Expected ]");
-            check(old_id, KIND_ARRAY);
-            add_instruction(OP_ADD, 0, 0);
-            token = get_token();
-        } else check(old_id, KIND_VAR);
-        int pos_in_table = get_location(old_id);
-        code[ins_id].p = main_table.cur_level - main_table.symbol_stack[pos_in_table].level;
-        code[ins_id].q = main_table.symbol_stack[pos_in_table].offset;
-        if (main_table.symbol_stack[pos_in_table].is_ref) {
-            code[ins_id].op = OP_LV;
-        }
-
+        get_ident_address();
         if (token != ASSIGN) error("Expected :=");
         token = get_token();
         expression();
@@ -147,12 +150,8 @@ void statement() {
             token = get_token();
             if (token != LPARENT) error("Expected (");
             token = get_token();
-            check(id, KIND_VAR);
-            int pos_in_table = get_location(id);
-            int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
-            if (main_table.symbol_stack[pos_in_table].is_ref) add_instruction(OP_LI, 0, 0);
+            get_ident_address();
             add_instruction(OP_RI, 0, 0);
-            token = get_token();
             if (token != RPARENT) error("Expected )");
             token = get_token();
             return;
@@ -165,21 +164,8 @@ void statement() {
         token = get_token();
         if (token == LPARENT) {
             token = get_token();
-            int old_num_code = num_code;
-            int f = expression();
-            if (main_table.symbol_stack[pos].number_of_args < num_var + 1) error_detail(id, " has too many arguments!");
-            int flag = ((main_table.symbol_stack[pos].flag >> num_var) & 1);
-            if (flag && f) error("Reference argument must be a variable");
-            if (flag) {
-                num_code = old_num_code;
-                int pos_in_table = get_location(id);
-                int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
-                if (main_table.symbol_stack[pos_in_table].is_ref) code[ins_id].op = OP_LV;
-            }
-            num_var++;
-            while (token == COMMA) {
-                token = get_token();
-                old_num_code = num_code;
+            while (1) {
+                int old_num_code = num_code;
                 int f = expression();
                 if (main_table.symbol_stack[pos].number_of_args < num_var + 1) error_detail(id, " has too many arguments!");
                 int flag = ((main_table.symbol_stack[pos].flag >> num_var) & 1);
@@ -191,6 +177,8 @@ void statement() {
                     if (main_table.symbol_stack[pos_in_table].is_ref) code[ins_id].op = OP_LV;
                 }
                 num_var++;
+                if (token != COMMA) break;
+                token = get_token();
             }
             if (token != RPARENT) error("Expected )");
             token = get_token();

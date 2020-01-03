@@ -11,8 +11,8 @@ typedef struct {
     kind_t kind;
     int level;
     char name[MAX_IDENT_LEN + 1];
-    int number_of_args; // for proceduce
-    int flag; // for procedue, 0 for value, 1 for reference
+    int number_of_args; // for procedure
+    int flag; // for procedure, 0 for value, 1 for reference
     int offset; // for var and array var and const, offset in value stack
     int is_ref; // for var and array var, 1 if it is ref
     int pos_in_instruction; // for proc
