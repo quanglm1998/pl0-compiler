@@ -102,6 +102,7 @@ int factor() {
 }
 
 void get_ident_address(void) {
+    if (token != IDENT) error("Expected an IDENT");
     char old_id[MAX_IDENT_LEN + 1];
     memcpy(old_id, id, MAX_IDENT_LEN + 1);
     token = get_token();
@@ -165,17 +166,13 @@ void statement() {
         if (token == LPARENT) {
             token = get_token();
             while (1) {
-                int old_num_code = num_code;
-                int f = expression();
-                if (main_table.symbol_stack[pos].number_of_args < num_var + 1) error_detail(id, " has too many arguments!");
                 int flag = ((main_table.symbol_stack[pos].flag >> num_var) & 1);
-                if (flag && f) error("Reference argument must be a variable");
                 if (flag) {
-                    num_code = old_num_code;
-                    int pos_in_table = get_location(id);
-                    int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
-                    if (main_table.symbol_stack[pos_in_table].is_ref) code[ins_id].op = OP_LV;
+                    get_ident_address();
+                } else {
+                    expression();
                 }
+                if (main_table.symbol_stack[pos].number_of_args < num_var + 1) error_detail(id, " has too many arguments!");
                 num_var++;
                 if (token != COMMA) break;
                 token = get_token();
