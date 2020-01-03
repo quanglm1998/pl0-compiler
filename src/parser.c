@@ -103,25 +103,20 @@ int factor() {
 
 void get_ident_address(void) {
     if (token != IDENT) error("Expected an IDENT");
-    char old_id[MAX_IDENT_LEN + 1];
-    memcpy(old_id, id, MAX_IDENT_LEN + 1);
+    int pos_in_table = get_location(id);
     token = get_token();
-    int ins_id = add_instruction(OP_LA, 0, 0);
-    int p = 0, q = 0;
-    if (token == LBRACK) {
-        token = get_token();
-        expression();
-        if (token != RBRACK) error("Expected ]");
-        check(old_id, KIND_ARRAY);
-        add_instruction(OP_ADD, 0, 0);
-        token = get_token();
-    } else check(old_id, KIND_VAR);
-    int pos_in_table = get_location(old_id);
-    code[ins_id].p = main_table.cur_level - main_table.symbol_stack[pos_in_table].level;
-    code[ins_id].q = main_table.symbol_stack[pos_in_table].offset;
+    int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
     if (main_table.symbol_stack[pos_in_table].is_ref) {
         code[ins_id].op = OP_LV;
     }
+    if (token == LBRACK) {
+        check(id, KIND_ARRAY);
+        token = get_token();
+        expression();
+        if (token != RBRACK) error("Expected ]");
+        add_instruction(OP_ADD, 0, 0);
+        token = get_token();
+    } else check(id, KIND_VAR);
 }
 
 void statement() {

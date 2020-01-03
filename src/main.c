@@ -40,16 +40,16 @@ int main(int argc, char *argv[]) {
         }
         printf("\n");
     }
-    FILE* output = fopen("asm", "w");
-    for (int i = 0; i < num_code; i++) {
-        fprintf(output, "%s", ASM[code[i].op]);
-        if (NUM_ARGS[code[i].op] == 1) {
-            fprintf(output, " %d", code[i].q);
-        } else if (NUM_ARGS[code[i].op] == 2) {
-            fprintf(output, " %d %d", code[i].p, code[i].q);
-        }
-        fprintf(output, "\n");
-    }
-    fclose(output);
+    // FILE* output = fopen("asm", "w");
+    // for (int i = 0; i < num_code; i++) {
+    //     fprintf(output, "%s", ASM[code[i].op]);
+    //     if (NUM_ARGS[code[i].op] == 1) {
+    //         fprintf(output, " %d", code[i].q);
+    //     } else if (NUM_ARGS[code[i].op] == 2) {
+    //         fprintf(output, " %d %d", code[i].p, code[i].q);
+    //     }
+    //     fprintf(output, "\n");
+    // }
+    // fclose(output);
     return 0;
 }
