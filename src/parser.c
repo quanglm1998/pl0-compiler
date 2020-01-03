@@ -27,9 +27,9 @@ int expression() {
     int flag = 0;
     int is_minus = 0;
     if (token == PLUS || token == MINUS) {
+        is_minus = (token == MINUS);
         token = get_token();
         flag = 1;
-        is_minus = (token == MINUS);
     }
     flag |= term();
     if (is_minus) add_instruction(OP_NEG, 0, 0);
@@ -130,9 +130,36 @@ void statement() {
     } else if (token == CALL) {
         token = get_token();
         if (token != IDENT) error("Expected an IDENT");
+        if (strcmp(id, "WRITEI") == 0) {
+            token = get_token();
+            if (token != LPARENT) error("Expected (");
+            token = get_token();
+            expression();
+            add_instruction(OP_WRI, 0, 0);
+            if (token != RPARENT) error("Expected )");
+            token = get_token();
+            return;
+        } else if (strcmp(id, "WRITELN") == 0) {
+            add_instruction(OP_WLN, 0, 0);
+            token = get_token();
+            return;
+        } else if (strcmp(id, "READI") == 0) {
+            token = get_token();
+            if (token != LPARENT) error("Expected (");
+            token = get_token();
+            check(id, KIND_VAR);
+            int pos_in_table = get_location(id);
+            int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
+            if (main_table.symbol_stack[pos_in_table].is_ref) add_instruction(OP_LI, 0, 0);
+            add_instruction(OP_RI, 0, 0);
+            token = get_token();
+            if (token != RPARENT) error("Expected )");
+            token = get_token();
+            return;
+        }
         check(id, KIND_PROCEDURE);
         int pos_old_id = get_location(id);
-        add_instruction(OP_ADD, 0, 0);
+        add_instruction(OP_INT, 0, 4);
         int pos = get_location(id);
         int num_var = 0;
         token = get_token();
@@ -146,7 +173,8 @@ void statement() {
             if (flag) {
                 num_code = old_num_code;
                 int pos_in_table = get_location(id);
-                add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
+                int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
+                if (main_table.symbol_stack[pos_in_table].is_ref) code[ins_id].op = OP_LV;
             }
             num_var++;
             while (token == COMMA) {
@@ -159,7 +187,8 @@ void statement() {
                 if (flag) {
                     num_code = old_num_code;
                     int pos_in_table = get_location(id);
-                    add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
+                    int ins_id = add_instruction(OP_LA, main_table.cur_level - main_table.symbol_stack[pos_in_table].level, main_table.symbol_stack[pos_in_table].offset);
+                    if (main_table.symbol_stack[pos_in_table].is_ref) code[ins_id].op = OP_LV;
                 }
                 num_var++;
             }
@@ -168,7 +197,7 @@ void statement() {
         }
         if (main_table.symbol_stack[pos].number_of_args > num_var) error_detail(id, " has too few arguments!");
         add_instruction(OP_DCT, 0, 4 + num_var);
-        add_instruction(OP_CALL, main_table.cur_level - main_table.symbol_stack[pos_old_id].level + 1, main_table.symbol_stack[pos_old_id].pos_in_instruction);
+        add_instruction(OP_CALL, main_table.cur_level - main_table.symbol_stack[pos_old_id].level, main_table.symbol_stack[pos_old_id].pos_in_instruction);
     } else if (token == BEGIN) {
         token = get_token();
         statement();
@@ -219,8 +248,8 @@ void statement() {
         if (token != ASSIGN) error("Expected :=");
         token = get_token();
         expression();
-        int l1 = add_instruction(OP_ST, 0, 0);
-        add_instruction(OP_CV, 0, 0);
+        add_instruction(OP_ST, 0, 0);
+        int l1 = add_instruction(OP_CV, 0, 0);
         add_instruction(OP_LI, 0, 0);
         if (token != TO) error("Expected TO");
         token = get_token();
@@ -351,14 +380,7 @@ void program() {
                 if(token == PERIOD) {
                     printf("\n================\n");
                     printf("\nProgram parsed succesfully!\n");
-
-                    for (int i = 0; i < main_table.top; i++) {
-                        symbol_t now = main_table.symbol_stack[i];
-                        if (now.kind != KIND_VAR) continue;
-                        add_instruction(OP_LV, now.level, now.offset);
-                        add_instruction(OP_WRI, 0, 0);
-                        add_instruction(OP_WLN, 0, 0);
-                    }
+                    printf("\n================\n\n");
                     add_instruction(OP_HLT, 0, 0);
                 } else error("Expected .");
             } else error("Expected ;");

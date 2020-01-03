@@ -37,19 +37,19 @@ void read_asm(FILE *f) {
 int base(int b, int p) {
     int c = b;
     while (p) {
-        p = s[c + 3];
+        c = s[c + 3];
         --p;
     }
-    return p;
+    return c;
 }
 
 void run() {
     int pc = 0, t = -1, b = 0;
     while (pc < n) {
+        // printf("%d %d %d %d\n", pc, b, t, s[t]);
         int op = code[pc].op;
         int p = code[pc].p;
         int q = code[pc].q;
-        //printf("%s %d %d\n", ASM[op], p, q);
         switch (op) {
             case OP_LA:
                 s[++t] = base(b, p) + q;
